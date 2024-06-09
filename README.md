@@ -20,9 +20,9 @@ zpool create zfs2 mirror /dev/sdd /dev/sde
 zpool create zfs3 mirror /dev/sdf /dev/sdg  
 zpool create zfs4 mirror /dev/sdh /dev/sdi  
 
-zpool list
-NAME   SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
-zfs1   480M   140K   480M        -         -     0%     0%  1.00x    ONLINE  -
-zfs2   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -
-zfs3   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -
-zfs4   480M   136K   480M        -         -     0%     0%  1.00x    ONLINE  -
+zpool list  
+NAME   SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT  
+zfs1   480M   140K   480M        -         -     0%     0%  1.00x    ONLINE  -  
+zfs2   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -  
+zfs3   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -  
+zfs4   480M   136K   480M        -         -     0%     0%  1.00x    ONLINE  -  
