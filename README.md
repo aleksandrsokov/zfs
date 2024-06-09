@@ -51,3 +51,34 @@ zfs get all | grep compressratio | grep -v ref
 gzip-9 с наибольшей компресией 3.63x
 
 # 2. Определение настроек пула
+скачиваем архив  
+wget -O archive.tar.gz --no-check-certificate 'https://drive.usercontent.google.com/download?id=1MvrcEp-WgAQe57aDEzxSRalPAwbNN1Bb&export=download'  
+
+разархиваци  
+tar -xzvf archive.tar.gz
+
+Проверка импорта  
+zpool import -d zpoolexport/
+
+импорт и апдейт  
+zpool import -d zpoolexport/ otus  
+zpool upgrade otus  
+
+Запрос параметров пула  
+zfs get all otus
+
+размер  
+zfs get available otus  
+
+# 3. Работа со снапшотами
+скачиваем файл  
+wget -O otus_task2.file --no-check-certificate https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI&export=download  
+
+Востановление файловой системы  
+zfs receive otus/test@today < otus_task2.file
+
+поиск файла  
+find /otus/test -name "secret_message"
+
+смотрим содержимое файла  
+cat /otus/test/task1/file_mess/secret_message
