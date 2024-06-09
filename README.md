@@ -45,3 +45,9 @@ zfs4  compression           zle                    local
 скачиваем файл  
 wget https://gutenberg.org/cache/epub/2600/pg2600.converter.log  
 for i in {1..4}; do cp pg2600.converter.log /zfs$i ; done  
+
+проеряем компресию  
+zfs get all | grep compressratio | grep -v ref  
+gzip-9 с наибольшей компресией 3.63x
+
+# 2. Определение настроек пула
