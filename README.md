@@ -15,14 +15,33 @@ sdf      8:80   0  512M  0 disk
 sdg      8:96   0  512M  0 disk  
 sdh      8:112  0  512M  0 disk  
 sdi      8:128  0  512M  0 disk  
+
+создаем пулы  
 zpool create zfs1 mirror /dev/sdb /dev/sdc  
 zpool create zfs2 mirror /dev/sdd /dev/sde  
 zpool create zfs3 mirror /dev/sdf /dev/sdg  
 zpool create zfs4 mirror /dev/sdh /dev/sdi  
 
+смотрим инфу по пулам  
 zpool list  
 NAME   SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT  
 zfs1   480M   140K   480M        -         -     0%     0%  1.00x    ONLINE  -  
 zfs2   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -  
 zfs3   480M   135K   480M        -         -     0%     0%  1.00x    ONLINE  -  
-zfs4   480M   136K   480M        -         -     0%     0%  1.00x    ONLINE  -  
+zfs4   480M   136K   480M        -         -     0%     0%  1.00x    ONLINE  - 
+
+для каждого пула задаем алгоритм сжатия  
+zfs set compression=lzjb zfs1  
+zfs set compression=lz4 zfs2  
+zfs set compression=gzip-9 zfs3  
+zfs set compression=zle zfs4  
+
+zfs get all | grep compression  
+zfs1  compression           lzjb                   local  
+zfs2  compression           lz4                    local  
+zfs3  compression           gzip-9                 local  
+zfs4  compression           zle                    local  
+
+скачиваем файл  
+wget https://gutenberg.org/cache/epub/2600/pg2600.converter.log  
+for i in {1..4}; do cp pg2600.converter.log /zfs$i ; done  
