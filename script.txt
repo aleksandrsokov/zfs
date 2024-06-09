@@ -1,0 +1,247 @@
+[root@zfs ~]# script /vagrant/screept.txt
+Script started, file is /vagrant/screept.txt
+[root@zfs ~]# lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   40G  0 disk
+└─sda1   8:1    0   40G  0 part /
+sdb      8:16   0  512M  0 disk
+sdc      8:32   0  512M  0 disk
+sdd      8:48   0  512M  0 disk
+sde      8:64   0  512M  0 disk
+sdf      8:80   0  512M  0 disk
+sdg      8:96   0  512M  0 disk
+sdh      8:112  0  512M  0 disk
+sdi      8:128  0  512M  0 disk
+[root@zfs ~]# zpool create zfs1 mirror /dev/sdb /dev/sdc
+v/sde
+zpool create zfs3 mirror /dev/sdf /dev/sdg
+zpool create zfs4 mirror /dev/sdh /dev/sdi[root@zfs ~]# zpool create zfs2 mirror /dev/sdd /dev/sde
+
+[root@zfs ~]# zpool create zfs3 mirror /dev/sdf /dev/sdg
+[root@zfs ~]# zpool create zfs4 mirror /dev/sdh /dev/sdi
+[root@zfs ~]# pool list
+bash: pool: command not found
+[root@zfs ~]# zpool list
+NAME   SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+zfs1   480M   116K   480M        -         -     0%     0%  1.00x    ONLINE  -
+zfs2   480M   112K   480M        -         -     0%     0%  1.00x    ONLINE  -
+zfs3   480M   112K   480M        -         -     0%     0%  1.00x    ONLINE  -
+zfs4   480M   112K   480M        -         -     0%     0%  1.00x    ONLINE  -
+[root@zfs ~]# zfs set compression=lzjb zfs1
+[root@zfs ~]# zfs set compression=lz4 zfs2
+[root@zfs ~]# zfs set compression=gzip-9 zfs3
+[root@zfs ~]# zfs set compression=zle zfs4
+[root@zfs ~]# wget https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+--2024-06-09 12:02:21--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 41052631 (39M) [text/plain]
+Saving to: ‘pg2600.converter.log’
+
+100%[=======================================================================================================================================================================>] 41,052,631   751KB/s   in 33s
+
+2024-06-09 12:02:55 (1.17 MB/s) - ‘pg2600.converter.log’ saved [41052631/41052631]
+
+[root@zfs ~]# for i in {1..4}; do cp pg2600.converter.log /zfs$i ; done
+[root@zfs ~]# zfs list
+NAME   USED  AVAIL     REFER  MOUNTPOINT
+zfs1  21.7M   330M     21.6M  /zfs1
+zfs2  14.1M   338M     14.0M  /zfs2
+zfs3  8.64M   343M     8.56M  /zfs3
+zfs4  27.4M   325M     27.3M  /zfs4
+[root@zfs ~]# zfs get all | grep compressratio | grep -v ref
+zfs1  compressratio         1.82x                  -
+zfs2  compressratio         2.23x                  -
+zfs3  compressratio         3.66x                  -
+zfs4  compressratio         1.00x                  -
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]# wget -O archive.tar.gz --no-check-certificate 'https://drive.usercontent.google.com/download?id=1MvrcEp-WgAQe57aDEzxSRalPAwbNN1Bb&export=download'
+--2024-06-09 12:03:53--  https://drive.usercontent.google.com/download?id=1MvrcEp-WgAQe57aDEzxSRalPAwbNN1Bb&export=download
+Resolving drive.usercontent.google.com (drive.usercontent.google.com)... 216.58.209.161, 2a00:1450:4010:c08::84
+Connecting to drive.usercontent.google.com (drive.usercontent.google.com)|216.58.209.161|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 7275140 (6.9M) [application/octet-stream]
+Saving to: ‘archive.tar.gz’
+
+100%[=======================================================================================================================================================================>] 7,275,140   9.21MB/s   in 0.8s
+
+2024-06-09 12:04:02 (9.21 MB/s) - ‘archive.tar.gz’ saved [7275140/7275140]
+
+[root@zfs ~]# tar -xzvf archive.tar.gz
+zpoolexport/
+zpoolexport/filea
+zpoolexport/fileb
+[root@zfs ~]# zpool import -d zpoolexport/
+   pool: otus
+     id: 6554193320433390805
+  state: ONLINE
+ action: The pool can be imported using its name or numeric identifier.
+ config:
+
+        otus                         ONLINE
+          mirror-0                   ONLINE
+            /root/zpoolexport/filea  ONLINE
+            /root/zpoolexport/fileb  ONLINE
+[root@zfs ~]# zpool import -d zpoolexport/ otus
+[root@zfs ~]# zpool status
+  pool: otus
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME                         STATE     READ WRITE CKSUM
+        otus                         ONLINE       0     0     0
+          mirror-0                   ONLINE       0     0     0
+            /root/zpoolexport/filea  ONLINE       0     0     0
+            /root/zpoolexport/fileb  ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zfs1
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfs1        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zfs2
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfs2        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdd     ONLINE       0     0     0
+            sde     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zfs3
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfs3        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+            sdg     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: zfs4
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfs4        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdh     ONLINE       0     0     0
+            sdi     ONLINE       0     0     0
+
+errors: No known data errors
+[root@zfs ~]# zpool get all otus
+NAME  PROPERTY                       VALUE                          SOURCE
+otus  size                           480M                           -
+otus  capacity                       0%                             -
+otus  altroot                        -                              default
+otus  health                         ONLINE                         -
+otus  guid                           6554193320433390805            -
+otus  version                        -                              default
+otus  bootfs                         -                              default
+otus  delegation                     on                             default
+otus  autoreplace                    off                            default
+otus  cachefile                      -                              default
+otus  failmode                       wait                           default
+otus  listsnapshots                  off                            default
+otus  autoexpand                     off                            default
+otus  dedupditto                     0                              default
+otus  dedupratio                     1.00x                          -
+otus  free                           478M                           -
+otus  allocated                      2.18M                          -
+otus  readonly                       off                            -
+otus  ashift                         0                              default
+otus  comment                        -                              default
+otus  expandsize                     -                              -
+otus  freeing                        0                              -
+otus  fragmentation                  0%                             -
+otus  leaked                         0                              -
+otus  multihost                      off                            default
+otus  checkpoint                     -                              -
+otus  load_guid                      5207527309280876281            -
+otus  autotrim                       off                            default
+otus  feature@async_destroy          enabled                        local
+otus  feature@empty_bpobj            active                         local
+otus  feature@lz4_compress           active                         local
+otus  feature@multi_vdev_crash_dump  enabled                        local
+otus  feature@spacemap_histogram     active                         local
+otus  feature@enabled_txg            active                         local
+otus  feature@hole_birth             active                         local
+otus  feature@extensible_dataset     active                         local
+otus  feature@embedded_data          active                         local
+otus  feature@bookmarks              enabled                        local
+otus  feature@filesystem_limits      enabled                        local
+otus  feature@large_blocks           enabled                        local
+otus  feature@large_dnode            enabled                        local
+otus  feature@sha512                 enabled                        local
+otus  feature@skein                  enabled                        local
+otus  feature@edonr                  enabled                        local
+otus  feature@userobj_accounting     active                         local
+otus  feature@encryption             enabled                        local
+otus  feature@project_quota          active                         local
+otus  feature@device_removal         enabled                        local
+otus  feature@obsolete_counts        enabled                        local
+otus  feature@zpool_checkpoint       enabled                        local
+otus  feature@spacemap_v2            active                         local
+otus  feature@allocation_classes     enabled                        local
+otus  feature@resilver_defer         enabled                        local
+otus  feature@bookmark_v2            enabled                        local
+[root@zfs ~]# zfs get available otus
+NAME  PROPERTY   VALUE  SOURCE
+otus  available  350M   -
+[root@zfs ~]# zfs get readonly ot
+cannot open 'ot': dataset does not exist
+[root@zfs ~]# zfs get readonly otus
+NAME  PROPERTY  VALUE   SOURCE
+otus  readonly  off     default
+[root@zfs ~]# zfs get recordsize otus
+NAME  PROPERTY    VALUE    SOURCE
+otus  recordsize  128K     local
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]#
+[root@zfs ~]# wget -O otus_task2.file --no-check-certificate 'https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI&export=download'
+--2024-06-09 12:05:25--  https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI&export=download
+Resolving drive.usercontent.google.com (drive.usercontent.google.com)... 216.58.209.161, 2a00:1450:4010:c08::84
+Connecting to drive.usercontent.google.com (drive.usercontent.google.com)|216.58.209.161|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5432736 (5.2M) [application/octet-stream]
+Saving to: ‘otus_task2.file’
+
+100%[=======================================================================================================================================================================>] 5,432,736   16.0MB/s   in 0.3s
+
+2024-06-09 12:05:31 (16.0 MB/s) - ‘otus_task2.file’ saved [5432736/5432736]
+
+[root@zfs ~]# zfs receive otus/test@today < otus_task2.file
+[root@zfs ~]# cat /otus/test/task1/file_mess/secret_message
+https://otus.ru/lessons/linux-hl/
+
+[root@zfs ~]# exit
+exit
+Script done, file is /vagrant/screept.txt
+[root@zfs ~]#
